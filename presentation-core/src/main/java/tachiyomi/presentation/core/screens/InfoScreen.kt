@@ -1,5 +1,6 @@
 package tachiyomi.presentation.core.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +33,8 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.tv.material3.Border
+import androidx.tv.material3.ButtonDefaults
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.util.secondaryItemAlpha
@@ -118,7 +121,16 @@ fun InfoScreen(
 				modifier = Modifier.fillMaxWidth(),
 				enabled = canAccept,
 				onClick = onAcceptClick,
-				colors = androidx.tv.material3.ButtonDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.primary)
+
+				colors = ButtonDefaults.colors(
+					focusedContainerColor = MaterialTheme
+						.colorScheme.onPrimary
+				),
+				border = ButtonDefaults.border(focusedBorder = Border(
+					BorderStroke(5.dp,  MaterialTheme
+						.colorScheme.secondary)
+				)
+				),
 			) {
 				Text(text = acceptText)
 			}
