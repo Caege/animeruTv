@@ -29,6 +29,18 @@ dependencies {
     implementation(compose.ui.util)
 
     implementation(kotlinx.immutables)
+
+	val composeBom = platform("androidx.compose:compose-bom:2024.12.01")
+	implementation(composeBom)
+
+	// General compose dependencies.
+	implementation("androidx.activity:activity-compose:1.9.2")
+
+	implementation("androidx.compose.ui:ui-tooling-preview")
+	debugImplementation("androidx.compose.ui:ui-tooling")
+
+	// Compose for TV dependencies.
+	implementation("androidx.tv:tv-material:1.0.0")
 }
 
 tasks {
