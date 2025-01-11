@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -55,7 +56,7 @@ fun InfoScreen(
 	val strokeWidth = Dp.Hairline
 	val borderColor = MaterialTheme.colorScheme.outline
 
-	Row {
+	Row(Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp)) {
 		//		Box(
 		//			modifier = Modifier
 		//				.zIndex(2f)
@@ -118,17 +119,20 @@ fun InfoScreen(
 			verticalArrangement = Arrangement.Center
 		) {
 			androidx.tv.material3.Button(
-				modifier = Modifier.fillMaxWidth(),
+				modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
 				enabled = canAccept,
 				onClick = onAcceptClick,
 
 				colors = ButtonDefaults.colors(
-					focusedContainerColor = MaterialTheme
-						.colorScheme.onPrimary
+					containerColor = MaterialTheme.colorScheme.primaryContainer,
+					contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+					focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+					focusedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+
 				),
 				border = ButtonDefaults.border(focusedBorder = Border(
 					BorderStroke(5.dp,  MaterialTheme
-						.colorScheme.secondary)
+						.colorScheme.primary)
 				)
 				),
 			) {
