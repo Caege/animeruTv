@@ -338,21 +338,21 @@ private fun ColumnScope.DisplayPage(
 	val displayMode by screenModel.libraryPreferences.displayMode().collectAsState()
 	SettingsChipRow(MR.strings.action_display_mode) {
 		displayModes.mapIndexed { index, (titleRes, mode) ->
-			androidx.tv.material3.FilterChip(
-				modifier = if (index == 0) Modifier
-					.focusRequester(focusItem)
-					 else Modifier,
-				selected = displayMode == mode,
-				onClick = { screenModel.setDisplayMode(mode) },
-			) {
-				Text(stringResource(titleRes))
-			}
-			//			FilterChip(
-			//				modifier = if (index == 0) Modifier
-			//				selected = displayMode == mode,
-			//				onClick = { screenModel.setDisplayMode(mode) },
-			//				label = { Text(stringResource(titleRes)) },
-			//			)
+//			androidx.tv.material3.FilterChip(
+//				modifier = if (index == 0) Modifier
+//					.focusRequester(focusItem)
+//					 else Modifier,
+//				selected = displayMode == mode,
+//				onClick = { screenModel.setDisplayMode(mode) },
+//			) {
+//				Text(stringResource(titleRes))
+//			}
+						FilterChip(
+							modifier = if (index == 0) Modifier.focusRequester(focusItem) else Modifier,
+							selected = displayMode == mode,
+							onClick = { screenModel.setDisplayMode(mode) },
+							label = { Text(stringResource(titleRes)) },
+						)
 		}
 	}
 

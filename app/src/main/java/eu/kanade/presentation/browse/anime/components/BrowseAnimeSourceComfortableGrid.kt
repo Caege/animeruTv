@@ -1,5 +1,6 @@
 package eu.kanade.presentation.browse.anime.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -8,9 +9,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
+import androidx.tv.material3.Button
+import androidx.tv.material3.Text
 import eu.kanade.presentation.browse.BrowseSourceLoadingItem
 import eu.kanade.presentation.browse.InLibraryBadge
 import eu.kanade.presentation.library.components.CommonEntryItemDefaults
@@ -29,31 +33,41 @@ fun BrowseAnimeSourceComfortableGrid(
     onAnimeLongClick: (Anime) -> Unit,
 ) {
     LazyVerticalGrid(
+		modifier = Modifier.clickable{},
         columns = columns,
         contentPadding = contentPadding + PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(CommonEntryItemDefaults.GridVerticalSpacer),
         horizontalArrangement = Arrangement.spacedBy(CommonEntryItemDefaults.GridHorizontalSpacer),
     ) {
-        if (animeList.loadState.prepend is LoadState.Loading) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                BrowseSourceLoadingItem()
-            }
-        }
+//        if (animeList.loadState.prepend is LoadState.Loading) {
+//            item(span = { GridItemSpan(maxLineSpan) }) {
+//                BrowseSourceLoadingItem()
+//            }
+//        }
+//
+//        items(count = animeList.itemCount) { index ->
+//            val anime by animeList[index]?.collectAsState() ?: return@items
+//            BrowseAnimeSourceComfortableGridItem(
+//                anime = anime,
+//                onClick = { onAnimeClick(anime) },
+//                onLongClick = { onAnimeLongClick(anime) },
+//            )
+//        }
+//
+//        if (animeList.loadState.refresh is LoadState.Loading || animeList.loadState.append is LoadState.Loading) {
+//            item(span = { GridItemSpan(maxLineSpan) }) {
+//                BrowseSourceLoadingItem()
+//            }
+//        }
 
-        items(count = animeList.itemCount) { index ->
-            val anime by animeList[index]?.collectAsState() ?: return@items
-            BrowseAnimeSourceComfortableGridItem(
-                anime = anime,
-                onClick = { onAnimeClick(anime) },
-                onLongClick = { onAnimeLongClick(anime) },
-            )
-        }
+		items(20) { index ->
+			Button(onClick = { /*TODO*/ }) {
+				Text(text = "Item #$index")
+			}
 
-        if (animeList.loadState.refresh is LoadState.Loading || animeList.loadState.append is LoadState.Loading) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                BrowseSourceLoadingItem()
-            }
-        }
+		}
+
+
     }
 }
 
