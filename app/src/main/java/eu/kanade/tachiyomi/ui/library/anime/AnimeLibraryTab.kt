@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -188,6 +189,8 @@ data object AnimeLibraryTab : Tab {
                             screenModel.activeCategoryIndex,
                         )
                     },
+
+					//this sets a state to show settings modal
                     onClickFilter = screenModel::showSettingsDialog,
                     onClickRefresh = {
                         onClickRefresh(
@@ -276,6 +279,7 @@ data object AnimeLibraryTab : Tab {
         }
 
         val onDismissRequest = screenModel::closeDialog
+		//this part runs when the state is to show settings modal
         when (val dialog = state.dialog) {
             is AnimeLibraryScreenModel.Dialog.SettingsSheet -> run {
                 val category = state.categories.getOrNull(screenModel.activeCategoryIndex)
@@ -283,10 +287,15 @@ data object AnimeLibraryTab : Tab {
                     onDismissRequest()
                     return@run
                 }
-                AnimeLibrarySettingsDialog(
+
+
+
+				AnimeLibrarySettingsDialog(
+
                     onDismissRequest = onDismissRequest,
                     screenModel = settingsScreenModel,
                     category = category,
+
                     // AM (GROUPING) -->
                     hasCategories = allAnimeCategories.fastAny { !it.isSystemCategory },
                     // <-- AM (GROUPING)

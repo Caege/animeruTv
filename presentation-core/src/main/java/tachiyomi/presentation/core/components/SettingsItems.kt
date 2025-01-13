@@ -45,6 +45,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -83,11 +85,11 @@ fun HeadingItem(
         text = text,
         style = MaterialTheme.typography.header,
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = SettingsItemsPaddings.Horizontal,
-                vertical = SettingsItemsPaddings.Vertical,
-            ),
+			.fillMaxWidth()
+			.padding(
+				horizontal = SettingsItemsPaddings.Horizontal,
+				vertical = SettingsItemsPaddings.Vertical,
+			),
     )
 }
 
@@ -294,13 +296,17 @@ fun SelectItem(
 
 @Composable
 fun TriStateItem(
+	modifier: Modifier = Modifier,
     label: String,
     state: TriState,
     enabled: Boolean = true,
+focusItem : FocusRequester? = null,
     onClick: ((TriState) -> Unit)?,
 ) {
-    Row(
-        modifier = Modifier
+
+
+	Row(
+        modifier = modifier
             .clickable(
                 enabled = enabled && onClick != null,
                 onClick = {
@@ -315,7 +321,11 @@ fun TriStateItem(
             .padding(
                 horizontal = SettingsItemsPaddings.Horizontal,
                 vertical = SettingsItemsPaddings.Vertical,
-            ),
+            ).apply{
+				if(focusItem != null) focusItem.requestFocus()
+			}
+			,
+
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.large),
     ) {

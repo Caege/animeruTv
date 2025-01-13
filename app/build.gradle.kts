@@ -285,6 +285,16 @@ dependencies {
     implementation(libs.google.api.services.drive)
     implementation(libs.google.api.client.oauth)
     // <-- AM (SYNC_DRIVE)
+
+
+	// General compose dependencies.
+	implementation("androidx.activity:activity-compose:1.9.2")
+
+	implementation("androidx.compose.ui:ui-tooling-preview")
+	debugImplementation("androidx.compose.ui:ui-tooling")
+
+	// Compose for TV dependencies.
+	implementation("androidx.tv:tv-material:1.0.0")
 }
 
 androidComponents {

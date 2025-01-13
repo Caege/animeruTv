@@ -1,8 +1,11 @@
 package eu.kanade.presentation.library.anime
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,15 +19,28 @@ import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.util.fastForEach
+import androidx.tv.material3.Button
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Surface
 import eu.kanade.presentation.components.TabbedDialog
 import eu.kanade.presentation.components.TabbedDialogPaddings
+import eu.kanade.presentation.components.TabbedDialogTest
+import eu.kanade.tachiyomi.ui.library.anime.AnimeLibraryScreenModel
 import eu.kanade.tachiyomi.ui.library.anime.AnimeLibrarySettingsScreenModel
 import eu.kanade.tachiyomi.util.system.isDevFlavor
 import eu.kanade.tachiyomi.util.system.isPreviewBuildType
@@ -37,6 +53,7 @@ import tachiyomi.domain.library.model.AnimeLibraryGroup
 import tachiyomi.domain.library.model.LibraryDisplayMode
 import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.MR.strings.selected
 import tachiyomi.presentation.core.components.BaseSortItem
 import tachiyomi.presentation.core.components.CheckboxItem
 import tachiyomi.presentation.core.components.HeadingItem
@@ -50,341 +67,399 @@ import tachiyomi.presentation.core.util.collectAsState
 
 @Composable
 fun AnimeLibrarySettingsDialog(
-    onDismissRequest: () -> Unit,
-    screenModel: AnimeLibrarySettingsScreenModel,
-    category: Category?,
-    // AM (GROUPING) -->
-    hasCategories: Boolean,
-    // <-- AM (GROUPING)
+	onDismissRequest: () -> Unit,
+	screenModel: AnimeLibrarySettingsScreenModel,
+	category: Category?,
+	// AM (GROUPING) -->
+	hasCategories: Boolean,
+	// <-- AM (GROUPING)
 ) {
-    TabbedDialog(
-        onDismissRequest = onDismissRequest,
-        tabTitles = persistentListOf(
-            stringResource(MR.strings.action_filter),
-            stringResource(MR.strings.action_sort),
-            stringResource(MR.strings.action_display),
-            // AM (GROUPING) -->
-            stringResource(MR.strings.group),
-            // <-- AM (GROUPING)
-        ),
-    ) { page ->
-        Column(
-            modifier = Modifier
-                .padding(vertical = TabbedDialogPaddings.Vertical)
-                .verticalScroll(rememberScrollState()),
-        ) {
-            when (page) {
-                0 -> FilterPage(
-                    screenModel = screenModel,
-                )
-                1 -> SortPage(
-                    category = category,
-                    screenModel = screenModel,
-                )
-                2 -> DisplayPage(
-                    screenModel = screenModel,
-                )
-                // AM (GROUPING) -->
-                3 -> GroupPage(
-                    screenModel = screenModel,
-                    hasCategories = hasCategories,
-                )
-                // <-- AM (GROUPING)
-            }
-        }
-    }
+	var color by remember { mutableStateOf(Green) }
+
+	val (filterRef, sortRef, displayRef, groupRef) = remember { FocusRequester.createRefs() }
+	val refList = listOf(filterRef, sortRef, displayRef, groupRef)
+
+		TabbedDialogTest(
+			refList = refList,
+			onDismissRequest = onDismissRequest,
+			tabTitles = persistentListOf(
+				stringResource(MR.strings.action_filter),
+				stringResource(MR.strings.action_sort),
+				stringResource(MR.strings.action_display),
+				// AM (GROUPING) -->
+				stringResource(MR.strings.group),
+				// <-- AM (GROUPING)
+			),
+		) { page ->
+			Column(
+				modifier = Modifier
+					.padding(vertical = TabbedDialogPaddings.Vertical)
+					.verticalScroll(rememberScrollState()),
+			) {
+				when (page) {
+					0 -> FilterPage(
+						refList[0],
+						screenModel = screenModel,
+					)
+
+					1 -> SortPage(
+						category = category,
+						screenModel = screenModel,
+					)
+
+					2 -> DisplayPage(
+						refList[2],
+						screenModel = screenModel,
+					)
+					// AM (GROUPING) -->
+					3 -> GroupPage(
+						screenModel = screenModel,
+						hasCategories = hasCategories,
+					)
+					// <-- AM (GROUPING)
+				}
+			}
+		}
+
+
+
+}
+
+@Composable
+fun AnimeLibrarySettingsDialogTest(
+	onDismissRequest: () -> Unit,
+	screenModel: AnimeLibrarySettingsScreenModel,
+	category: Category?,
+	whereTofocus: FocusRequester,
+	// AM (GROUPING) -->
+	hasCategories: Boolean,
+	// <-- AM (GROUPING)
+) {
+	var color by remember { mutableStateOf(Green) }
+	Button(
+		onClick = { /*TODO*/ },
+		Modifier
+			.background(color)
+			.onFocusChanged {
+				color = if (it.isFocused) Red else Green
+			}
+			.focusRequester(whereTofocus),
+	) {
+		androidx.tv.material3.Text(text = "In focus bitch")
+	}
+
+	LaunchedEffect(Unit) {
+		// Your code to be run once when the composable enters
+		whereTofocus.requestFocus()
+	}
+
+
 }
 
 @Composable
 private fun ColumnScope.FilterPage(
-    screenModel: AnimeLibrarySettingsScreenModel,
+	focusItem: FocusRequester,
+	screenModel: AnimeLibrarySettingsScreenModel,
 ) {
-    val filterDownloaded by screenModel.libraryPreferences.filterDownloadedAnime().collectAsState()
-    val downloadedOnly by screenModel.preferences.downloadedOnly().collectAsState()
-    val autoUpdateAnimeRestrictions by screenModel.libraryPreferences.autoUpdateItemRestrictions().collectAsState()
+	val filterDownloaded by screenModel.libraryPreferences.filterDownloadedAnime().collectAsState()
+	val downloadedOnly by screenModel.preferences.downloadedOnly().collectAsState()
+	val autoUpdateAnimeRestrictions by screenModel.libraryPreferences.autoUpdateItemRestrictions().collectAsState()
 
-    TriStateItem(
-        label = stringResource(MR.strings.label_downloaded),
-        state = if (downloadedOnly) {
-            TriState.ENABLED_IS
-        } else {
-            filterDownloaded
-        },
-        enabled = !downloadedOnly,
-        onClick = { screenModel.toggleFilter(LibraryPreferences::filterDownloadedAnime) },
-    )
-    val filterUnseen by screenModel.libraryPreferences.filterUnseen().collectAsState()
-    TriStateItem(
-        label = stringResource(MR.strings.action_filter_unseen),
-        state = filterUnseen,
-        onClick = { screenModel.toggleFilter(LibraryPreferences::filterUnseen) },
-    )
-    val filterStarted by screenModel.libraryPreferences.filterStartedAnime().collectAsState()
-    TriStateItem(
-        label = stringResource(MR.strings.label_started),
-        state = filterStarted,
-        onClick = { screenModel.toggleFilter(LibraryPreferences::filterStartedAnime) },
-    )
-    val filterBookmarked by screenModel.libraryPreferences.filterBookmarkedAnime().collectAsState()
-    TriStateItem(
-        label = stringResource(MR.strings.action_filter_bookmarked),
-        state = filterBookmarked,
-        onClick = { screenModel.toggleFilter(LibraryPreferences::filterBookmarkedAnime) },
-    )
-    val filterCompleted by screenModel.libraryPreferences.filterCompletedAnime().collectAsState()
-    TriStateItem(
-        label = stringResource(MR.strings.completed),
-        state = filterCompleted,
-        onClick = { screenModel.toggleFilter(LibraryPreferences::filterCompletedAnime) },
-    )
-    // TODO: re-enable when custom intervals are ready for stable
-    if (
-        (isDevFlavor || isPreviewBuildType) &&
-        LibraryPreferences.ENTRY_OUTSIDE_RELEASE_PERIOD in autoUpdateAnimeRestrictions
-    ) {
-        val filterIntervalCustom by screenModel.libraryPreferences.filterIntervalCustom().collectAsState()
-        TriStateItem(
-            label = stringResource(MR.strings.action_filter_interval_custom),
-            state = filterIntervalCustom,
-            onClick = { screenModel.toggleFilter(LibraryPreferences::filterIntervalCustom) },
-        )
-    }
+	TriStateItem(
+		modifier = Modifier.focusRequester(focusItem),
+		label = stringResource(MR.strings.label_downloaded),
+		state = if (downloadedOnly) {
+			TriState.ENABLED_IS
+		} else {
+			filterDownloaded
+		},
+		enabled = !downloadedOnly,
+		onClick = { screenModel.toggleFilter(LibraryPreferences::filterDownloadedAnime) },
+	)
+	val filterUnseen by screenModel.libraryPreferences.filterUnseen().collectAsState()
+	TriStateItem(
+		label = stringResource(MR.strings.action_filter_unseen),
+		state = filterUnseen,
+		onClick = { screenModel.toggleFilter(LibraryPreferences::filterUnseen) },
+	)
+	val filterStarted by screenModel.libraryPreferences.filterStartedAnime().collectAsState()
+	TriStateItem(
+		label = stringResource(MR.strings.label_started),
+		state = filterStarted,
+		onClick = { screenModel.toggleFilter(LibraryPreferences::filterStartedAnime) },
+	)
+	val filterBookmarked by screenModel.libraryPreferences.filterBookmarkedAnime().collectAsState()
+	TriStateItem(
+		label = stringResource(MR.strings.action_filter_bookmarked),
+		state = filterBookmarked,
+		onClick = { screenModel.toggleFilter(LibraryPreferences::filterBookmarkedAnime) },
+	)
+	val filterCompleted by screenModel.libraryPreferences.filterCompletedAnime().collectAsState()
+	TriStateItem(
+		label = stringResource(MR.strings.completed),
+		state = filterCompleted,
+		onClick = { screenModel.toggleFilter(LibraryPreferences::filterCompletedAnime) },
+	)
+	// TODO: re-enable when custom intervals are ready for stable
+	if (
+		(isDevFlavor || isPreviewBuildType) &&
+		LibraryPreferences.ENTRY_OUTSIDE_RELEASE_PERIOD in autoUpdateAnimeRestrictions
+	) {
+		val filterIntervalCustom by screenModel.libraryPreferences.filterIntervalCustom().collectAsState()
+		TriStateItem(
+			label = stringResource(MR.strings.action_filter_interval_custom),
+			state = filterIntervalCustom,
+			onClick = { screenModel.toggleFilter(LibraryPreferences::filterIntervalCustom) },
+		)
+	}
+	val trackers by screenModel.trackersFlow.collectAsState()
+	when (trackers.size) {
+		0 -> {
+			// No trackers
+		}
 
-    val trackers by screenModel.trackersFlow.collectAsState()
-    when (trackers.size) {
-        0 -> {
-            // No trackers
-        }
-        1 -> {
-            val service = trackers[0]
-            val filterTracker by screenModel.libraryPreferences.filterTrackedAnime(
-                service.id.toInt(),
-            ).collectAsState()
-            TriStateItem(
-                label = stringResource(MR.strings.action_filter_tracked),
-                state = filterTracker,
-                onClick = { screenModel.toggleTracker(service.id.toInt()) },
-            )
-        }
-        else -> {
-            HeadingItem(MR.strings.action_filter_tracked)
-            trackers.map { service ->
-                val filterTracker by screenModel.libraryPreferences.filterTrackedAnime(
-                    service.id.toInt(),
-                ).collectAsState()
-                TriStateItem(
-                    label = service.name,
-                    state = filterTracker,
-                    onClick = { screenModel.toggleTracker(service.id.toInt()) },
-                )
-            }
-        }
-    }
+		1 -> {
+			val service = trackers[0]
+			val filterTracker by screenModel.libraryPreferences.filterTrackedAnime(
+				service.id.toInt(),
+			).collectAsState()
+			TriStateItem(
+				label = stringResource(MR.strings.action_filter_tracked),
+				state = filterTracker,
+				onClick = { screenModel.toggleTracker(service.id.toInt()) },
+			)
+		}
+
+		else -> {
+			HeadingItem(MR.strings.action_filter_tracked)
+			trackers.map { service ->
+				val filterTracker by screenModel.libraryPreferences.filterTrackedAnime(
+					service.id.toInt(),
+				).collectAsState()
+				TriStateItem(
+					label = service.name,
+					state = filterTracker,
+					onClick = { screenModel.toggleTracker(service.id.toInt()) },
+				)
+			}
+		}
+	}
 }
 
 @Composable
 private fun ColumnScope.SortPage(
-    category: Category?,
-    screenModel: AnimeLibrarySettingsScreenModel,
+	category: Category?,
+	screenModel: AnimeLibrarySettingsScreenModel,
 ) {
-    val trackers by screenModel.trackersFlow.collectAsState()
-    // AM (GROUPING) -->
-    val globalSortMode by screenModel.libraryPreferences.animeSortingMode().collectAsState()
-    val sortingMode = if (screenModel.grouping == AnimeLibraryGroup.BY_DEFAULT) {
-        category.sort.type
-    } else {
-        globalSortMode.type
-    }
-    val sortDescending = if (screenModel.grouping == AnimeLibraryGroup.BY_DEFAULT) {
-        category.sort.isAscending
-    } else {
-        globalSortMode.isAscending
-    }.not()
-    // <-- AM (GROUPING)
+	val trackers by screenModel.trackersFlow.collectAsState()
+	// AM (GROUPING) -->
+	val globalSortMode by screenModel.libraryPreferences.animeSortingMode().collectAsState()
+	val sortingMode = if (screenModel.grouping == AnimeLibraryGroup.BY_DEFAULT) {
+		category.sort.type
+	} else {
+		globalSortMode.type
+	}
+	val sortDescending = if (screenModel.grouping == AnimeLibraryGroup.BY_DEFAULT) {
+		category.sort.isAscending
+	} else {
+		globalSortMode.isAscending
+	}.not()
+	// <-- AM (GROUPING)
+	val options = remember(trackers.isEmpty()) {
+		val trackerMeanPair = if (trackers.isNotEmpty()) {
+			MR.strings.action_sort_tracker_score to AnimeLibrarySort.Type.TrackerMean
+		} else {
+			null
+		}
+		listOfNotNull(
+			MR.strings.action_sort_alpha to AnimeLibrarySort.Type.Alphabetical,
+			MR.strings.action_sort_total to AnimeLibrarySort.Type.TotalEpisodes,
+			MR.strings.action_sort_last_read to AnimeLibrarySort.Type.LastSeen,
+			MR.strings.action_sort_last_anime_update to AnimeLibrarySort.Type.LastUpdate,
+			MR.strings.action_sort_unread_count to AnimeLibrarySort.Type.UnseenCount,
+			MR.strings.action_sort_latest_chapter to AnimeLibrarySort.Type.LatestEpisode,
+			MR.strings.action_sort_episode_fetch_date to AnimeLibrarySort.Type.EpisodeFetchDate,
+			MR.strings.action_sort_date_added to AnimeLibrarySort.Type.DateAdded,
+			trackerMeanPair,
+			MR.strings.action_sort_airing_time to AnimeLibrarySort.Type.AiringTime,
+			MR.strings.action_sort_random to AnimeLibrarySort.Type.Random,
+		)
+	}
 
-    val options = remember(trackers.isEmpty()) {
-        val trackerMeanPair = if (trackers.isNotEmpty()) {
-            MR.strings.action_sort_tracker_score to AnimeLibrarySort.Type.TrackerMean
-        } else {
-            null
-        }
-        listOfNotNull(
-            MR.strings.action_sort_alpha to AnimeLibrarySort.Type.Alphabetical,
-            MR.strings.action_sort_total to AnimeLibrarySort.Type.TotalEpisodes,
-            MR.strings.action_sort_last_read to AnimeLibrarySort.Type.LastSeen,
-            MR.strings.action_sort_last_anime_update to AnimeLibrarySort.Type.LastUpdate,
-            MR.strings.action_sort_unread_count to AnimeLibrarySort.Type.UnseenCount,
-            MR.strings.action_sort_latest_chapter to AnimeLibrarySort.Type.LatestEpisode,
-            MR.strings.action_sort_episode_fetch_date to AnimeLibrarySort.Type.EpisodeFetchDate,
-            MR.strings.action_sort_date_added to AnimeLibrarySort.Type.DateAdded,
-            trackerMeanPair,
-            MR.strings.action_sort_airing_time to AnimeLibrarySort.Type.AiringTime,
-            MR.strings.action_sort_random to AnimeLibrarySort.Type.Random,
-        )
-    }
+	options.map { (titleRes, mode) ->
+		if (mode == AnimeLibrarySort.Type.Random) {
+			BaseSortItem(
+				label = stringResource(titleRes),
+				icon = Icons.Default.Refresh
+					.takeIf { sortingMode == AnimeLibrarySort.Type.Random },
+				onClick = {
+					screenModel.setSort(category, mode, AnimeLibrarySort.Direction.Ascending)
+				},
+			)
+			return@map
+		}
+		SortItem(
+			label = stringResource(titleRes),
+			sortDescending = sortDescending.takeIf { sortingMode == mode },
+			onClick = {
+				val isTogglingDirection = sortingMode == mode
+				val direction = when {
+					isTogglingDirection -> if (sortDescending) {
+						AnimeLibrarySort.Direction.Ascending
+					} else {
+						AnimeLibrarySort.Direction.Descending
+					}
 
-    options.map { (titleRes, mode) ->
-        if (mode == AnimeLibrarySort.Type.Random) {
-            BaseSortItem(
-                label = stringResource(titleRes),
-                icon = Icons.Default.Refresh
-                    .takeIf { sortingMode == AnimeLibrarySort.Type.Random },
-                onClick = {
-                    screenModel.setSort(category, mode, AnimeLibrarySort.Direction.Ascending)
-                },
-            )
-            return@map
-        }
-        SortItem(
-            label = stringResource(titleRes),
-            sortDescending = sortDescending.takeIf { sortingMode == mode },
-            onClick = {
-                val isTogglingDirection = sortingMode == mode
-                val direction = when {
-                    isTogglingDirection -> if (sortDescending) {
-                        AnimeLibrarySort.Direction.Ascending
-                    } else {
-                        AnimeLibrarySort.Direction.Descending
-                    }
-                    else -> if (sortDescending) {
-                        AnimeLibrarySort.Direction.Descending
-                    } else {
-                        AnimeLibrarySort.Direction.Ascending
-                    }
-                }
-                screenModel.setSort(category, mode, direction)
-            },
-        )
-    }
+					else -> if (sortDescending) {
+						AnimeLibrarySort.Direction.Descending
+					} else {
+						AnimeLibrarySort.Direction.Ascending
+					}
+				}
+				screenModel.setSort(category, mode, direction)
+			},
+		)
+	}
 }
 
 private val displayModes = listOf(
-    MR.strings.action_display_grid to LibraryDisplayMode.CompactGrid,
-    MR.strings.action_display_comfortable_grid to LibraryDisplayMode.ComfortableGrid,
-    MR.strings.action_display_cover_only_grid to LibraryDisplayMode.CoverOnlyGrid,
-    MR.strings.action_display_list to LibraryDisplayMode.List,
+	MR.strings.action_display_grid to LibraryDisplayMode.CompactGrid,
+	MR.strings.action_display_comfortable_grid to LibraryDisplayMode.ComfortableGrid,
+	MR.strings.action_display_cover_only_grid to LibraryDisplayMode.CoverOnlyGrid,
+	MR.strings.action_display_list to LibraryDisplayMode.List,
 )
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun ColumnScope.DisplayPage(
-    screenModel: AnimeLibrarySettingsScreenModel,
+	focusItem: FocusRequester,
+	screenModel: AnimeLibrarySettingsScreenModel,
 ) {
-    val displayMode by screenModel.libraryPreferences.displayMode().collectAsState()
-    SettingsChipRow(MR.strings.action_display_mode) {
-        displayModes.map { (titleRes, mode) ->
-            FilterChip(
-                selected = displayMode == mode,
-                onClick = { screenModel.setDisplayMode(mode) },
-                label = { Text(stringResource(titleRes)) },
-            )
-        }
-    }
+	val displayMode by screenModel.libraryPreferences.displayMode().collectAsState()
+	SettingsChipRow(MR.strings.action_display_mode) {
+		displayModes.mapIndexed { index, (titleRes, mode) ->
+			androidx.tv.material3.FilterChip(
+				modifier = if (index == 0) Modifier
+					.focusRequester(focusItem)
+					 else Modifier,
+				selected = displayMode == mode,
+				onClick = { screenModel.setDisplayMode(mode) },
+			) {
+				Text(stringResource(titleRes))
+			}
+			//			FilterChip(
+			//				modifier = if (index == 0) Modifier
+			//				selected = displayMode == mode,
+			//				onClick = { screenModel.setDisplayMode(mode) },
+			//				label = { Text(stringResource(titleRes)) },
+			//			)
+		}
+	}
 
-    if (displayMode != LibraryDisplayMode.List) {
-        val configuration = LocalConfiguration.current
-        val columnPreference = remember {
-            if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                screenModel.libraryPreferences.animeLandscapeColumns()
-            } else {
-                screenModel.libraryPreferences.animePortraitColumns()
-            }
-        }
+	if (displayMode != LibraryDisplayMode.List) {
+		val configuration = LocalConfiguration.current
+		val columnPreference = remember {
+			if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+				screenModel.libraryPreferences.animeLandscapeColumns()
+			} else {
+				screenModel.libraryPreferences.animePortraitColumns()
+			}
+		}
+		val columns by columnPreference.collectAsState()
+		SliderItem(
+			label = stringResource(MR.strings.pref_library_columns),
+			max = 10,
+			value = columns,
+			valueText = if (columns > 0) {
+				stringResource(MR.strings.pref_library_columns_per_row, columns)
+			} else {
+				stringResource(MR.strings.label_default)
+			},
+			onChange = columnPreference::set,
+		)
+	}
 
-        val columns by columnPreference.collectAsState()
-        SliderItem(
-            label = stringResource(MR.strings.pref_library_columns),
-            max = 10,
-            value = columns,
-            valueText = if (columns > 0) {
-                stringResource(MR.strings.pref_library_columns_per_row, columns)
-            } else {
-                stringResource(MR.strings.label_default)
-            },
-            onChange = columnPreference::set,
-        )
-    }
+	HeadingItem(MR.strings.overlay_header)
+	CheckboxItem(
+		label = stringResource(MR.strings.action_display_download_badge_anime),
+		pref = screenModel.libraryPreferences.downloadBadge(),
+	)
+	CheckboxItem(
+		label = stringResource(MR.strings.action_display_local_badge),
+		pref = screenModel.libraryPreferences.localBadge(),
+	)
+	CheckboxItem(
+		label = stringResource(MR.strings.action_display_language_badge),
+		pref = screenModel.libraryPreferences.languageBadge(),
+	)
+	CheckboxItem(
+		label = stringResource(MR.strings.action_display_show_continue_watching_button),
+		pref = screenModel.libraryPreferences.showContinueViewingButton(),
+	)
 
-    HeadingItem(MR.strings.overlay_header)
-    CheckboxItem(
-        label = stringResource(MR.strings.action_display_download_badge_anime),
-        pref = screenModel.libraryPreferences.downloadBadge(),
-    )
-    CheckboxItem(
-        label = stringResource(MR.strings.action_display_local_badge),
-        pref = screenModel.libraryPreferences.localBadge(),
-    )
-    CheckboxItem(
-        label = stringResource(MR.strings.action_display_language_badge),
-        pref = screenModel.libraryPreferences.languageBadge(),
-    )
-    CheckboxItem(
-        label = stringResource(MR.strings.action_display_show_continue_watching_button),
-        pref = screenModel.libraryPreferences.showContinueViewingButton(),
-    )
-
-    HeadingItem(MR.strings.tabs_header)
-    CheckboxItem(
-        label = stringResource(MR.strings.action_display_show_tabs),
-        pref = screenModel.libraryPreferences.categoryTabs(),
-    )
-    CheckboxItem(
-        label = stringResource(MR.strings.action_display_show_number_of_items),
-        pref = screenModel.libraryPreferences.categoryNumberOfItems(),
-    )
+	HeadingItem(MR.strings.tabs_header)
+	CheckboxItem(
+		label = stringResource(MR.strings.action_display_show_tabs),
+		pref = screenModel.libraryPreferences.categoryTabs(),
+	)
+	CheckboxItem(
+		label = stringResource(MR.strings.action_display_show_number_of_items),
+		pref = screenModel.libraryPreferences.categoryNumberOfItems(),
+	)
 }
 
 // AM (GROUPING) -->
 data class GroupMode(
-    val int: Int,
-    val nameRes: Int,
-    val imageVector: ImageVector,
+	val int: Int,
+	val nameRes: Int,
+	val imageVector: ImageVector,
 )
 
 private fun groupTypeDrawableRes(type: Int): ImageVector {
-    return when (type) {
-        AnimeLibraryGroup.BY_STATUS -> Icons.Default.AvTimer
-        AnimeLibraryGroup.BY_TRACK_STATUS -> Icons.Default.Sync
-        AnimeLibraryGroup.BY_SOURCE -> Icons.Default.Explore
-        AnimeLibraryGroup.UNGROUPED -> Icons.Default.Layers
-        else -> Icons.AutoMirrored.Filled.Label
-    }
+	return when (type) {
+		AnimeLibraryGroup.BY_STATUS -> Icons.Default.AvTimer
+		AnimeLibraryGroup.BY_TRACK_STATUS -> Icons.Default.Sync
+		AnimeLibraryGroup.BY_SOURCE -> Icons.Default.Explore
+		AnimeLibraryGroup.UNGROUPED -> Icons.Default.Layers
+		else -> Icons.AutoMirrored.Filled.Label
+	}
 }
 
 @Composable
 private fun ColumnScope.GroupPage(
-    screenModel: AnimeLibrarySettingsScreenModel,
-    hasCategories: Boolean,
+	screenModel: AnimeLibrarySettingsScreenModel,
+	hasCategories: Boolean,
 ) {
-    val trackers by screenModel.trackersFlow.collectAsState()
-    val groups = remember(hasCategories, trackers) {
-        buildList {
-            if (hasCategories) {
-                add(AnimeLibraryGroup.BY_DEFAULT)
-            }
-            add(AnimeLibraryGroup.BY_SOURCE)
-            add(AnimeLibraryGroup.BY_STATUS)
-            if (trackers.isNotEmpty()) {
-                add(AnimeLibraryGroup.BY_TRACK_STATUS)
-            }
-            add(AnimeLibraryGroup.UNGROUPED)
-        }.map {
-            GroupMode(
-                it,
-                AnimeLibraryGroup.groupTypeStringRes(it, hasCategories),
-                groupTypeDrawableRes(it),
-            )
-        }
-    }
+	val trackers by screenModel.trackersFlow.collectAsState()
+	val groups = remember(hasCategories, trackers) {
+		buildList {
+			if (hasCategories) {
+				add(AnimeLibraryGroup.BY_DEFAULT)
+			}
+			add(AnimeLibraryGroup.BY_SOURCE)
+			add(AnimeLibraryGroup.BY_STATUS)
+			if (trackers.isNotEmpty()) {
+				add(AnimeLibraryGroup.BY_TRACK_STATUS)
+			}
+			add(AnimeLibraryGroup.UNGROUPED)
+		}.map {
+			GroupMode(
+				it,
+				AnimeLibraryGroup.groupTypeStringRes(it, hasCategories),
+				groupTypeDrawableRes(it),
+			)
+		}
+	}
 
-    groups.fastForEach {
-        IconItem(
-            label = androidx.compose.ui.res.stringResource(it.nameRes),
-            icon = it.imageVector,
-            selected = it.int == screenModel.grouping,
-            onClick = {
-                screenModel.setGrouping(it.int)
-            },
-        )
-    }
+	groups.fastForEach {
+		IconItem(
+			label = androidx.compose.ui.res.stringResource(it.nameRes),
+			icon = it.imageVector,
+			selected = it.int == screenModel.grouping,
+			onClick = {
+				screenModel.setGrouping(it.int)
+			},
+		)
+	}
 }
 // <-- AM (GROUPING)
