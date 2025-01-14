@@ -1390,6 +1390,14 @@ class PlayerActivity : BaseActivity() {
                 doubleTapPlayPause()
                 return true
             }
+
+			KeyEvent.KEYCODE_DPAD_CENTER -> {
+				doubleTapPlayPause()
+				return true
+			}
+
+
+
             KeyEvent.KEYCODE_DPAD_RIGHT -> {
                 val interval = playerPreferences.skipLengthPreference().get()
                 if (interval != 0) {

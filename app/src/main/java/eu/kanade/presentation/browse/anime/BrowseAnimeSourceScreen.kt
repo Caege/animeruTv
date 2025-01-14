@@ -1,5 +1,6 @@
 package eu.kanade.presentation.browse.anime
 
+import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -115,6 +116,8 @@ fun BrowseAnimeSourceContent(
         )
         return
     }
+
+
 
     when (displayMode) {
         LibraryDisplayMode.ComfortableGrid -> {

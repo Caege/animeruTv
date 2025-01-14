@@ -1,10 +1,13 @@
 package eu.kanade.presentation.browse.anime.components
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -24,7 +27,12 @@ fun BrowseAnimeSourceList(
     onAnimeClick: (Anime) -> Unit,
     onAnimeLongClick: (Anime) -> Unit,
 ) {
-    LazyColumn(
+	val context = LocalContext.current
+	LaunchedEffect(Unit) {
+		Toast.makeText(context,"Source List", Toast.LENGTH_LONG).show()
+	}
+
+	LazyColumn(
         contentPadding = contentPadding + PaddingValues(vertical = 8.dp),
     ) {
         item {

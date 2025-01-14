@@ -1,5 +1,6 @@
 package eu.kanade.presentation.browse.anime.components
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -7,9 +8,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -32,6 +35,12 @@ fun BrowseAnimeSourceComfortableGrid(
     onAnimeClick: (Anime) -> Unit,
     onAnimeLongClick: (Anime) -> Unit,
 ) {
+	val context = LocalContext.current
+	LaunchedEffect(Unit) {
+		Toast.makeText(context,"Comfortable grid", Toast.LENGTH_LONG).show()
+	}
+
+
     LazyVerticalGrid(
 		modifier = Modifier.clickable{},
         columns = columns,
