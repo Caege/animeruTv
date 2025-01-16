@@ -294,6 +294,12 @@ class PlayerControlsView @JvmOverloads constructor(context: Context, attrs: Attr
         showAndFadeControls()
     }
 
+	fun isControlsVisible() : Boolean {
+		return binding.lockedView.isVisible || binding.unlockedView.isVisible
+	}
+
+
+
     internal fun toggleControls(isTapped: Boolean = false) {
         val isControlsVisible = binding.lockedView.isVisible || binding.unlockedView.isVisible
         if (!isControlsVisible && !player.paused!!) {
@@ -371,7 +377,7 @@ class PlayerControlsView @JvmOverloads constructor(context: Context, attrs: Attr
         animationHandler.postDelayed(fadeOutControlsRunnable, 3500L)
     }
 
-    private fun fadeOutControls() {
+    fun fadeOutControls() {
         animationHandler.removeCallbacks(fadeOutControlsRunnable)
 
         AnimationUtils.loadAnimation(context, R.anim.player_fade_out).also { fadeAnimation ->
@@ -403,7 +409,7 @@ class PlayerControlsView @JvmOverloads constructor(context: Context, attrs: Attr
         showControls = false
     }
 
-    private fun fadeInControls() {
+    fun fadeInControls() {
         animationHandler.removeCallbacks(fadeOutControlsRunnable)
 
         AnimationUtils.loadAnimation(context, R.anim.player_fade_in).also { fadeAnimation ->
