@@ -38,6 +38,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GestureDetectorCompat
@@ -100,6 +101,7 @@ import eu.kanade.tachiyomi.util.view.setComposeContent
 import `is`.xyz.mpv.MPVLib
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -1348,27 +1350,60 @@ class PlayerActivity : BaseActivity() {
 	}
 	val tvFadeOutHandler = Handler(Looper.getMainLooper())
 	var tvControlsVisible by mutableStateOf(false)
+	val scope = CoroutineScope(Dispatchers.Main)
+	var seekbarState by
+	mutableStateOf(SeekState.NONE)
+
+	//	------------------------------------------------------
 	override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-		//		call function to fade out the ui after every 2s
-		Log.d("keyevent", "${playerControls.isControlsVisible()}")
+		Log.d("seek3", "${seekbarState}, collect value : ${playerControls.seekStateFlow.value}")
 
-if(playerControls.isControlsVisible()) {
-	tvFadeOutHandler.removeCallbacks(tvFadeOutControls)
-	tvFadeOutHandler.postDelayed(tvFadeOutControls, 3500L)
-}
+		scope.launch {
+			playerControls.seekStateFlow.collectLatest { seekState ->
+
+				seekbarState = seekState
+				Log.d("seek2", "latest value:${seekState}, mutableState: ${seekbarState}, collect value : " +
+					"${playerControls.seekStateFlow.value}")
+
+				when (seekState) {
+					SeekState.NONE -> {
+						// Start or reset the fade-out runnable
+						scope.launch {
+							tvFadeOutHandler.removeCallbacks(tvFadeOutControls)
+							tvFadeOutHandler.postDelayed(tvFadeOutControls, 3500L)
+						}
+					}
+
+					SeekState.SEEKBAR -> {
+						scope.launch {
+							tvFadeOutHandler.removeCallbacks(tvFadeOutControls)
+						}
+						// Cancel the runnable if the seek state is SEEKBAR
+
+
+					}
+
+					else -> {
+						// Handle other states if necessary
+					}
+				}
+			}
+		}
 
 
 
 
-		if (!playerControls.isControlsVisible()) {
+		if (!playerControls.isControlsVisible() && seekbarState != SeekState.SEEKBAR) {
 			when (keyCode) {
 				KeyEvent.KEYCODE_DPAD_UP -> {
 					tvControlsVisible = true
 					playerControls.fadeInControls()
-					tvFadeOutHandler.postDelayed(tvFadeOutControls, 3500L)
+					if (playerControls.SeekStateValue() == SeekState.NONE) {
+						tvFadeOutHandler.postDelayed(tvFadeOutControls, 3500L)
+					}
+
 					return true
 				}
-
 
 				KeyEvent.KEYCODE_DPAD_RIGHT -> {
 					val interval = playerPreferences.skipLengthPreference().get()
@@ -1390,19 +1425,12 @@ if(playerControls.isControlsVisible()) {
 					doubleTapPlayPause()
 					return true
 				}
-
-
 			}
 		}
-
-//		if(playerControls.isControlsVisible()){
-//			tvFadeOutHandler.removeCallbacks(tvFadeOutControls)
-//			tvFadeOutHandler.postDelayed(tvFadeOutControls, 2000L)
-//		}
-
-
-
-
+		//		if(playerControls.isControlsVisible()){
+		//			tvFadeOutHandler.removeCallbacks(tvFadeOutControls)
+		//			tvFadeOutHandler.postDelayed(tvFadeOutControls, 2000L)
+		//		}
 		if (false) {
 			when (keyCode) {
 				KeyEvent.KEYCODE_VOLUME_UP -> {

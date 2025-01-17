@@ -7,6 +7,7 @@ import android.content.res.ColorStateList
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -20,6 +21,8 @@ import eu.kanade.tachiyomi.ui.player.viewer.components.CurrentChapter
 import eu.kanade.tachiyomi.ui.player.viewer.components.Seekbar
 import `is`.xyz.mpv.MPVLib
 import `is`.xyz.mpv.Utils
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.util.lang.withUIContext
 import kotlin.math.abs
@@ -39,7 +42,10 @@ class PlayerControlsView @JvmOverloads constructor(context: Context, attrs: Attr
 
     private val player get() = activity.player
 
+	val seekStateFlow = MutableStateFlow(SeekState.NONE)
+
     val seekbar: Seekbar = Seekbar(
+
         view = binding.playbackSeekbar,
         onValueChange = ::onValueChange,
         onValueChangeFinished = ::onValueChangeFinished,
@@ -50,11 +56,23 @@ class PlayerControlsView @JvmOverloads constructor(context: Context, attrs: Attr
         onClick = { activity.viewModel.showVideoChapters() },
     )
 
+
+	fun SeekStateValue(): SeekState {
+		return SeekState.mode
+	}
+	var num = 0
     private fun onValueChange(value: Float, wasSeeking: Boolean) {
+
+		seekStateFlow.value = SeekState.SEEKBAR
+		Log.d("playertest", "number of times this ran : ${num}  and the value is ${value}")
+		num += 1
         if (!wasSeeking) {
             SeekState.mode = SeekState.SEEKBAR
+			seekStateFlow.value = SeekState.SEEKBAR
             activity.initSeek()
-        }
+        } else {
+			activity.initSeek()
+		}
 
         MPVLib.command(arrayOf("seek", value.toInt().toString(), "absolute+keyframes"))
 
@@ -69,6 +87,8 @@ class PlayerControlsView @JvmOverloads constructor(context: Context, attrs: Attr
     }
 
     private fun onValueChangeFinished(value: Float) {
+		seekStateFlow.value = SeekState.NONE
+
         if (SeekState.mode == SeekState.SEEKBAR) {
             if (playerPreferences.playerSmoothSeek().get()) {
                 player.timePos = value.toInt()
@@ -78,6 +98,8 @@ class PlayerControlsView @JvmOverloads constructor(context: Context, attrs: Attr
                 )
             }
             SeekState.mode = SeekState.NONE
+//			seekStateFlow.value = SeekState.NONE
+
             animationHandler.removeCallbacks(hideUiForSeekRunnable)
             animationHandler.removeCallbacks(fadeOutControlsRunnable)
             animationHandler.postDelayed(hideUiForSeekRunnable, 500L)
