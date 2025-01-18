@@ -10,16 +10,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
@@ -40,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.semantics.Role
@@ -49,6 +54,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
+import androidx.tv.material3.SelectableSurfaceDefaults
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
@@ -105,130 +111,160 @@ fun NavigationPill(
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
         var flickOffsetX by remember { mutableFloatStateOf(0f) }
 
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .selectableGroup()
-                .navigationBarsPadding()
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            flickOffsetX += dragAmount.x
-                        },
-                        onDragEnd = {
-                            val newIndex = when {
-                                (flickOffsetX < 0F) -> oldIndex - 1
-                                (flickOffsetX > 0F) -> oldIndex + 1
-                                else -> oldIndex
-                            }
-
-                            flickOffsetX = 0F
-
-                            updateTab(minOf(maxOf(newIndex, 0), tabs.size - 1))
-                        },
-                    )
-                },
-            tonalElevation = 1.4.dp,
-        ) {
+//        Surface(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .selectableGroup()
+//                .navigationBarsPadding()
+//                .pointerInput(Unit) {
+//                    detectDragGestures(
+//                        onDrag = { change, dragAmount ->
+//                            change.consume()
+//                            flickOffsetX += dragAmount.x
+//                        },
+//                        onDragEnd = {
+//                            val newIndex = when {
+//                                (flickOffsetX < 0F) -> oldIndex - 1
+//                                (flickOffsetX > 0F) -> oldIndex + 1
+//                                else -> oldIndex
+//                            }
+//
+//                            flickOffsetX = 0F
+//
+//                            updateTab(minOf(maxOf(newIndex, 0), tabs.size - 1))
+//                        },
+//                    )
+//                },
+//            tonalElevation = 1.4.dp,
+//        ) {
             val topStartCornerSize = remember { Animatable(0f) }
             val topEndCornerSize = remember { Animatable(28f) }
             val bottomStartCornerSize = remember { Animatable(0f) }
             val bottomEndCornerSize = remember { Animatable(28f) }
 
-            NavigationPillItemBackground(
-                pillItemWidth = pillItemWidth,
-                pillItemHeight = pillItemHeight,
-                pillOffsetX = navigationOffsetX,
-                topStartCornerSize = topStartCornerSize.value.dp,
-                topEndCornerSize = topEndCornerSize.value.dp,
-                bottomStartCornerSize = bottomStartCornerSize.value.dp,
-                bottomEndCornerSize = bottomEndCornerSize.value.dp,
-            )
+//            NavigationPillItemBackground(
+//                pillItemWidth = pillItemWidth,
+//                pillItemHeight = pillItemHeight,
+//                pillOffsetX = navigationOffsetX,
+//                topStartCornerSize = topStartCornerSize.value.dp,
+//                topEndCornerSize = topEndCornerSize.value.dp,
+//                bottomStartCornerSize = bottomStartCornerSize.value.dp,
+//                bottomEndCornerSize = bottomEndCornerSize.value.dp,
+//            )
             Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                Row {
-                    tabs.fastForEach {
-                        NavigationPillItem(it, updateTab, pillItemWidth, pillItemHeight)
-                    }
-                }
+//                Row {
+//                    tabs.fastForEach {
+//                        NavigationPillItem(it, updateTab, pillItemWidth, pillItemHeight)
+//                    }
+//                }
+
+				Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+
+					tabs.fastForEach {
+						val navigator = LocalNavigator.currentOrThrow
+						val tabIndex = it.options.index.toInt()
+						val selected = tabNavigator.current::class == it::class
+						androidx.tv.material3.Surface(
+							modifier = Modifier
+								.width(56.dp)
+								.height(48.dp),
+							colors = SelectableSurfaceDefaults.colors(
+								focusedContainerColor = MaterialTheme.colorScheme.surfaceDim,
+								selectedContainerColor = MaterialTheme.colorScheme.primaryContainer
+							),
+							selected = selected,
+							onClick = {
+								if (!selected) {
+									updateTab(tabIndex)
+								} else {
+									scope.launch { it.onReselect(navigator) }
+								}
+							},
+							shape = SelectableSurfaceDefaults.shape(shape = RoundedCornerShape(50)),
+						) {
+								NavigationPillItem(it, updateTab, pillItemWidth, pillItemHeight)
+						}
+
+					}
+				}
 
                 val alpha = remember { Animatable(-1f) }
                 val cornerAnimationSpec: AnimationSpec<Float> = tween(durationMillis = labelFade * 2)
 
                 LaunchedEffect(currentTabIndex) {
-                    scope.launchUI {
-                        if (alpha.value == -1f) return@launchUI
+//                    scope.launchUI {
+//                        if (alpha.value == -1f) return@launchUI
+//
+//                        if (oldIndex < currentTabIndex) {
+//                            alpha.animateTo(0.5f, animationSpec = tween(durationMillis = labelFade))
+//                        } else {
+//                            alpha.animateTo(-0.5f, animationSpec = tween(durationMillis = labelFade))
+//                        }
+//                    }
 
-                        if (oldIndex < currentTabIndex) {
-                            alpha.animateTo(0.5f, animationSpec = tween(durationMillis = labelFade))
-                        } else {
-                            alpha.animateTo(-0.5f, animationSpec = tween(durationMillis = labelFade))
-                        }
-                    }
-
-                    when (currentTabIndex) {
-                        0 -> {
-                            scope.launch { topStartCornerSize.animateTo(0f, animationSpec = cornerAnimationSpec) }
-                            scope.launch { topEndCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
-                            scope.launch { bottomStartCornerSize.animateTo(0f, animationSpec = cornerAnimationSpec) }
-                            scope.launch { bottomEndCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
-                        }
-                        tabs.size - 1 -> {
-                            scope.launch { topStartCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
-                            scope.launch { topEndCornerSize.animateTo(0f, animationSpec = cornerAnimationSpec) }
-                            scope.launch { bottomStartCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
-                            scope.launch { bottomEndCornerSize.animateTo(0f, animationSpec = cornerAnimationSpec) }
-                        }
-                        else -> {
-                            scope.launch { topStartCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
-                            scope.launch { topEndCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
-                            scope.launch { bottomStartCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
-                            scope.launch { bottomEndCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
-                        }
-                    }
+//                    when (currentTabIndex) {
+//                        0 -> {
+//                            scope.launch { topStartCornerSize.animateTo(0f, animationSpec = cornerAnimationSpec) }
+//                            scope.launch { topEndCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
+//                            scope.launch { bottomStartCornerSize.animateTo(0f, animationSpec = cornerAnimationSpec) }
+//                            scope.launch { bottomEndCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
+//                        }
+//                        tabs.size - 1 -> {
+//                            scope.launch { topStartCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
+//                            scope.launch { topEndCornerSize.animateTo(0f, animationSpec = cornerAnimationSpec) }
+//                            scope.launch { bottomStartCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
+//                            scope.launch { bottomEndCornerSize.animateTo(0f, animationSpec = cornerAnimationSpec) }
+//                        }
+//                        else -> {
+//                            scope.launch { topStartCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
+//                            scope.launch { topEndCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
+//                            scope.launch { bottomStartCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
+//                            scope.launch { bottomEndCornerSize.animateTo(28f, animationSpec = cornerAnimationSpec) }
+//                        }
+//                    }
                 }
 
                 LaunchedEffect(alpha.value) {
-                    scope.launchUI {
-                        when (alpha.value) {
-                            -1f -> alpha.snapTo(0f)
-
-                            -0.5f -> {
-                                if (oldIndex > currentTabIndex) {
-                                    alpha.snapTo(0.5f)
-                                    oldIndex = currentTabIndex
-                                } else {
-                                    alpha.animateTo(0f, animationSpec = tween(durationMillis = labelFade))
-                                }
-                            }
-
-                            0.5f -> {
-                                if (oldIndex < currentTabIndex) {
-                                    alpha.snapTo(-0.5f)
-                                    oldIndex = currentTabIndex
-                                } else {
-                                    alpha.animateTo(0f, animationSpec = tween(durationMillis = labelFade))
-                                }
-                            }
-                        }
-                    }
+//                    scope.launchUI {
+//                        when (alpha.value) {
+//                            -1f -> alpha.snapTo(0f)
+//
+//                            -0.5f -> {
+//                                if (oldIndex > currentTabIndex) {
+//                                    alpha.snapTo(0.5f)
+//                                    oldIndex = currentTabIndex
+//                                } else {
+//                                    alpha.animateTo(0f, animationSpec = tween(durationMillis = labelFade))
+//                                }
+//                            }
+//
+//                            0.5f -> {
+//                                if (oldIndex < currentTabIndex) {
+//                                    alpha.snapTo(-0.5f)
+//                                    oldIndex = currentTabIndex
+//                                } else {
+//                                    alpha.animateTo(0f, animationSpec = tween(durationMillis = labelFade))
+//                                }
+//                            }
+//                        }
+//                    }
                 }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .alpha(1 - abs(alpha.value * 2)),
-                ) {
-                    Text(
-                        text = tabs[oldIndex].options.title,
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .offset(x = navigationOffsetX),
-                    )
-                }
+//                Box(
+//                    modifier = Modifier
+//						.fillMaxWidth()
+//						.alpha(1 - abs(alpha.value * 2)),
+//                ) {
+//                    Text(
+//                        text = tabs[oldIndex].options.title,
+//                        style = MaterialTheme.typography.labelLarge,
+//                        modifier = Modifier
+//							.align(Alignment.Center)
+//							.offset(x = navigationOffsetX),
+//                    )
+//                }
             }
-        }
+//        }
     }
 }
 
@@ -244,8 +280,8 @@ private fun NavigationPillItemBackground(
 ) {
     Surface(
         modifier = Modifier
-            .offset(x = pillOffsetX)
-            .requiredWidthIn(max = pillItemWidth),
+			.offset(x = pillOffsetX)
+			.requiredWidthIn(max = pillItemWidth),
 
         shape = MaterialTheme.shapes.extraLarge.copy(
             topStart = CornerSize(topStartCornerSize),
@@ -256,8 +292,8 @@ private fun NavigationPillItemBackground(
     ) {
         Box(
             modifier = Modifier
-                .size(width = pillItemWidth, height = pillItemHeight)
-                .background(MaterialTheme.colorScheme.secondaryContainer),
+				.size(width = pillItemWidth, height = pillItemHeight)
+				.background(MaterialTheme.colorScheme.secondaryContainer),
         )
     }
 }
@@ -293,20 +329,20 @@ private fun NavigationPillItem(
 
     Box(
         modifier = Modifier
-            .size(width = pillItemWidth, height = pillItemHeight)
-            .clip(MaterialTheme.shapes.extraLarge)
-            // AM (TAB_HOLD) -->
-            .combinedClickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                enabled = true,
-                role = Role.Tab,
-                onLongClick = onLongClick,
-                onClick = onClick,
-            )
-            .semantics {
-                this.selected = selected
-            },
+			.size(width = pillItemWidth, height = pillItemHeight)
+			.clip(MaterialTheme.shapes.extraLarge)
+			// AM (TAB_HOLD) -->
+			.combinedClickable(
+				interactionSource = remember { MutableInteractionSource() },
+				indication = null,
+				enabled = true,
+				role = Role.Tab,
+				onLongClick = onLongClick,
+				onClick = onClick,
+			)
+			.semantics {
+				this.selected = selected
+			},
         // <-- AM (TAB_HOLD)
         contentAlignment = Alignment.Center,
     ) {
@@ -367,6 +403,7 @@ private fun NavigationIconItem(tab: Tab) {
             painter = tab.options.icon!!,
             contentDescription = tab.options.title,
             tint = LocalContentColor.current,
+//			tint = Color.Red,
             modifier = Modifier.size(28.dp),
         )
     }

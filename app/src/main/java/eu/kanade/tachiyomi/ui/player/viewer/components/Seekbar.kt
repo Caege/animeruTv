@@ -2,6 +2,7 @@ package eu.kanade.tachiyomi.ui.player.viewer.components
 
 import android.util.Log
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -95,16 +96,15 @@ class Seekbar(
 			targetValue = if (isDragging) 6.dp else 4.dp,
 			label = "trackHeight",
 		)
-		val animateRight = remember { Animatable(0f) }
+		val animateRight = remember { Animatable(value) }
 		var isRightKeyPressed by remember { mutableStateOf(false) } // To track if the button is being held
 		var isLeftKeyPressed by remember {
 			mutableStateOf(false)
 		}
 		val coroutineScope = rememberCoroutineScope()
-		val wasDragging2 =  MutableStateFlow(this.isDragging)
-//		var isDragging2 = this.isDragging
-
-		fun setIsDragging(boolean: Boolean){
+		val wasDragging2 = MutableStateFlow(this.isDragging)
+		//		var isDragging2 = this.isDragging
+		fun setIsDragging(boolean: Boolean) {
 			this.isDragging = boolean
 		}
 
@@ -112,36 +112,34 @@ class Seekbar(
 			return this.isDragging
 		}
 
+
+
+		LaunchedEffect(value) {
+			if(!isRightKeyPressed && !isLeftKeyPressed) {
+				animateRight.animateTo(value)
+			}
+
+		}
 		// To launch coroutines
-
 		LaunchedEffect(isRightKeyPressed, isLeftKeyPressed) {
-
 			Log.d("buttonright3", "${animateRight.value}")
 			if (isRightKeyPressed) {
 				// Animate the value from current to 1000 over 1 second (1000 ms)
 				animateRight.animateTo(
 					targetValue = duration,
-					animationSpec = tween(durationMillis = 20000),
+					animationSpec = tween(durationMillis = 20000, easing = EaseIn),
 				)
 
 
-
+			}
+			if (isLeftKeyPressed) {
+				animateRight.animateTo(
+					targetValue = 0f,
+					animationSpec = tween(durationMillis = 20000, easing = EaseIn),
+				)
 
 
 			}
-			if (isLeftKeyPressed){
-			animateRight.animateTo(
-				targetValue = 0f,
-				animationSpec = tween(durationMillis = 20000),
-			)
-
-
-
-
-			}
-
-
-
 		}
 
 
@@ -156,13 +154,13 @@ class Seekbar(
 				if (it.key == Key.DirectionRight || it.key == Key.DirectionLeft) {
 					if (it.key == Key.DirectionRight) {
 						isRightKeyPressed = true
-						this.isDragging = true
 
-//						mutableValue = (value + 1f).coerceAtMost(duration)
+						//						mutableValue = (value + 1f).coerceAtMost(duration)
 						val wasDragging = this.isDragging
-//						this.isDragging = true
+						//						this.isDragging = true
 						onValueChange(animateRight.value, wasDragging)
-//						onValueChange(mutableValue, wasDragging)
+						this.isDragging = true
+						//						onValueChange(mutableValue, wasDragging)
 						Log.d("buttonright2", "${animateRight.value}")
 
 
@@ -171,8 +169,7 @@ class Seekbar(
 						isRightKeyPressed = false
 						if (this.isDragging) {
 							onValueChangeFinished(animateRight.value.toFloat())
-
-//							onValueChangeFinished(mutableValue)
+							//							onValueChangeFinished(mutableValue)
 							this.isDragging = false
 						}
 						//						Log.d("buttonright", "let go of right button")
@@ -180,18 +177,19 @@ class Seekbar(
 
 					if (it.key == Key.DirectionLeft) {
 						isLeftKeyPressed = true
-//						mutableValue = (value - 1f).coerceAtLeast(0f)
+						//						mutableValue = (value - 1f).coerceAtLeast(0f)
 						val wasDragging = this.isDragging
-						this.isDragging = true
+
 						onValueChange(animateRight.value, wasDragging)
-//						onValueChange(mutableValue, wasDragging)
+						this.isDragging = true
+						//						onValueChange(mutableValue, wasDragging)
 
 					}
 					if (it.key == Key.DirectionLeft && it.type == KeyEventType.KeyUp) {
 						isLeftKeyPressed = false
 						if (this.isDragging) {
 							onValueChangeFinished(animateRight.value)
-//							onValueChangeFinished(mutableValue)
+							//							onValueChangeFinished(mutableValue)
 							this.isDragging = false
 						}
 					}
@@ -202,8 +200,9 @@ class Seekbar(
 				}
 			},
 			//			this is stupid but change value to mutablevalue
-//						value = value,
-			value = animateRight.value.toFloat(),
+			//						value = value,
+//			value = animateRight.value.toFloat(),
+			value = value,
 			readAheadValue = readAheadValue,
 			range = range,
 			onValueChangeFinished = {

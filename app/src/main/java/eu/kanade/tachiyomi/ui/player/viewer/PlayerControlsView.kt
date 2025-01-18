@@ -60,21 +60,20 @@ class PlayerControlsView @JvmOverloads constructor(context: Context, attrs: Attr
 	fun SeekStateValue(): SeekState {
 		return SeekState.mode
 	}
-	var num = 0
+
     private fun onValueChange(value: Float, wasSeeking: Boolean) {
 
 		seekStateFlow.value = SeekState.SEEKBAR
-		Log.d("playertest", "number of times this ran : ${num}  and the value is ${value}")
-		num += 1
+		Log.d("playertest", "${wasSeeking}")
+
+
+		// this essentialy sets value to initialseekvalue thingy
         if (!wasSeeking) {
             SeekState.mode = SeekState.SEEKBAR
-			seekStateFlow.value = SeekState.SEEKBAR
-            activity.initSeek()
-        } else {
-			activity.initSeek()
-		}
+			            activity.initSeek()
+        }
 
-        MPVLib.command(arrayOf("seek", value.toInt().toString(), "absolute+keyframes"))
+//        MPVLib.command(arrayOf("seek", value.toInt().toString(), "absolute+keyframes"))
 
         val duration = player.duration ?: 0
         if (duration == 0 || activity.initialSeek < 0) {
@@ -100,10 +99,10 @@ class PlayerControlsView @JvmOverloads constructor(context: Context, attrs: Attr
             SeekState.mode = SeekState.NONE
 //			seekStateFlow.value = SeekState.NONE
 
-            animationHandler.removeCallbacks(hideUiForSeekRunnable)
-            animationHandler.removeCallbacks(fadeOutControlsRunnable)
-            animationHandler.postDelayed(hideUiForSeekRunnable, 500L)
-            animationHandler.postDelayed(fadeOutControlsRunnable, 3500L)
+//            animationHandler.removeCallbacks(hideUiForSeekRunnable)
+//            animationHandler.removeCallbacks(fadeOutControlsRunnable)
+//            animationHandler.postDelayed(hideUiForSeekRunnable, 500L)
+//            animationHandler.postDelayed(fadeOutControlsRunnable, 3500L)
         } else {
             MPVLib.command(arrayOf("seek", value.toInt().toString(), "absolute+keyframes"))
         }
