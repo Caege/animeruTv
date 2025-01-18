@@ -1,10 +1,13 @@
 package eu.kanade.presentation.browse.anime.components
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -14,11 +17,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.tv.material3.Button
+import androidx.tv.material3.Card
+import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import eu.kanade.presentation.browse.BrowseSourceLoadingItem
@@ -32,6 +38,7 @@ import tachiyomi.presentation.core.util.plus
 
 @Composable
 fun BrowseAnimeSourceCompactGrid(
+	modifier: Modifier,
     animeList: LazyPagingItems<StateFlow<Anime>>,
     columns: GridCells,
     contentPadding: PaddingValues,
@@ -85,15 +92,18 @@ fun BrowseAnimeSourceCompactGrid(
 //			}
 //		}
 //	}
-
+Column(modifier = Modifier.padding(contentPadding)) {
 
 	LazyVerticalGrid(
 		columns = columns, // Defines 2 columns
-		modifier = Modifier
-			.fillMaxSize()
-			.padding(contentPadding),
-		verticalArrangement = Arrangement.spacedBy(CommonEntryItemDefaults.GridVerticalSpacer),
-		horizontalArrangement = Arrangement.spacedBy(CommonEntryItemDefaults.GridHorizontalSpacer),
+		modifier = modifier
+			.fillMaxSize(),
+//			.padding(contentPadding),
+		//		verticalArrangement = Arrangement.spacedBy(CommonEntryItemDefaults.GridVerticalSpacer),
+		//		horizontalArrangement = Arrangement.spacedBy(CommonEntryItemDefaults.GridHorizontalSpacer),
+
+		verticalArrangement = Arrangement.spacedBy(8.dp),
+		horizontalArrangement = Arrangement.spacedBy(8.dp)
 	) {
 
 		if (animeList.loadState.prepend is LoadState.Loading) {
@@ -105,17 +115,26 @@ fun BrowseAnimeSourceCompactGrid(
 
 		items(animeList.itemCount) { index ->
 			val anime by animeList[index]?.collectAsState() ?: return@items
-			Surface(selected = false, onClick = { onAnimeClick(anime) }) {
-//				Button(onClick = { /*TODO*/ }) {
-//					Text(text = "Item #$index")
-//				}
 
+			Card(
+				modifier = Modifier.padding(8.dp), onClick = { onAnimeClick(anime) },
+
+				) {
 				BrowseAnimeSourceCompactGridItem(
 					anime = anime,
 					onClick = { onAnimeClick(anime) },
 					onLongClick = { onAnimeLongClick(anime) },
 				)
 			}
+			//			Surface(selected = false, onClick = { onAnimeClick(anime) }) {
+			//
+			//
+			//				BrowseAnimeSourceCompactGridItem(
+			//					anime = anime,
+			//					onClick = { onAnimeClick(anime) },
+			//					onLongClick = { onAnimeLongClick(anime) },
+			//				)
+			//			}
 
 
 
@@ -128,6 +147,9 @@ fun BrowseAnimeSourceCompactGrid(
 			}
 		}
 	}
+}
+
+
 
 }
 

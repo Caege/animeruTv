@@ -194,7 +194,9 @@ fun EntryComfortableGridItem(
     ) {
         Column(modifier = Modifier.clickable{}) {
             EntryGridCover(
+
                 cover = {
+
                     ItemCover.Book(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -305,7 +307,7 @@ private fun GridItemSelectable(
                 onLongClick = onLongClick,
             )
             .selectedOutline(isSelected = isSelected, color = MaterialTheme.colorScheme.secondary)
-            .padding(4.dp),
+//            .padding(4.dp),
     ) {
         val contentColor = if (isSelected) {
             MaterialTheme.colorScheme.onSecondary

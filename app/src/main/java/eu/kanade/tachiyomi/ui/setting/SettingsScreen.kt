@@ -32,28 +32,28 @@ class SettingsScreen(
     @Composable
     override fun Content() {
         val parentNavigator = LocalNavigator.currentOrThrow
-        if (!isTabletUi()) {
-            Navigator(
-                screen = when (destination) {
-                    Destination.About.id -> AboutScreen
-                    Destination.DataAndStorage.id -> SettingsDataScreen
-                    Destination.Tracking.id -> SettingsTrackingScreen
-                    else -> SettingsMainScreen
-                },
-                content = {
-                    val pop: () -> Unit = {
-                        if (it.canPop) {
-                            it.pop()
-                        } else {
-                            parentNavigator.pop()
-                        }
-                    }
-                    CompositionLocalProvider(LocalBackPress provides pop) {
-                        DefaultNavigatorScreenTransition(navigator = it)
-                    }
-                },
-            )
-        } else {
+//        if (!isTabletUi()) {
+//            Navigator(
+//                screen = when (destination) {
+//                    Destination.About.id -> AboutScreen
+//                    Destination.DataAndStorage.id -> SettingsDataScreen
+//                    Destination.Tracking.id -> SettingsTrackingScreen
+//                    else -> SettingsMainScreen
+//                },
+//                content = {
+//                    val pop: () -> Unit = {
+//                        if (it.canPop) {
+//                            it.pop()
+//                        } else {
+//                            parentNavigator.pop()
+//                        }
+//                    }
+//                    CompositionLocalProvider(LocalBackPress provides pop) {
+//                        DefaultNavigatorScreenTransition(navigator = it)
+//                    }
+//                },
+//            )
+//        } else {
             Navigator(
                 screen = when (destination) {
                     Destination.About.id -> AboutScreen
@@ -75,7 +75,7 @@ class SettingsScreen(
                     endContent = { DefaultNavigatorScreenTransition(navigator = it) },
                 )
             }
-        }
+//        }
     }
 
     sealed class Destination(val id: Int) {

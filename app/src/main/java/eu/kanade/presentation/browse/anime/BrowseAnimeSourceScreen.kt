@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import eu.kanade.presentation.browse.anime.components.BrowseAnimeSourceComfortableGrid
@@ -122,6 +123,7 @@ fun BrowseAnimeSourceContent(
     when (displayMode) {
         LibraryDisplayMode.ComfortableGrid -> {
             BrowseAnimeSourceComfortableGrid(
+				modifier = Modifier.padding(horizontal = 48.dp),
                 animeList = animeList,
                 columns = columns,
                 contentPadding = contentPadding,
@@ -139,6 +141,7 @@ fun BrowseAnimeSourceContent(
         }
         LibraryDisplayMode.CompactGrid, LibraryDisplayMode.CoverOnlyGrid -> {
             BrowseAnimeSourceCompactGrid(
+				modifier = Modifier.padding(horizontal = 48.dp),
                 animeList = animeList,
                 columns = columns,
                 contentPadding = contentPadding,

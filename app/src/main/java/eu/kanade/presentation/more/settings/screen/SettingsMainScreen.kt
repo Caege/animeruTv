@@ -2,6 +2,7 @@ package eu.kanade.presentation.more.settings.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -35,6 +36,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
+import androidx.tv.material3.Button
+import androidx.tv.material3.Text
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -81,7 +84,7 @@ object SettingsMainScreen : Screen() {
         val topBarState = rememberTopAppBarState()
 
         Scaffold(
-            topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState),
+//            topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState),
             topBar = { scrollBehavior ->
                 AppBar(
                     title = stringResource(MR.strings.label_settings),
@@ -118,45 +121,100 @@ object SettingsMainScreen : Screen() {
                     null
                 }
 
-                LazyColumn(
-                    state = state,
-                    contentPadding = contentPadding,
-                ) {
-                    itemsIndexed(
-                        items = items,
-                        key = { _, item -> item.hashCode() },
-                    ) { index, item ->
-                        val selected = indexSelected == index
-                        var modifier: Modifier = Modifier
-                        var contentColor = LocalContentColor.current
-                        if (twoPane) {
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp)
-                                .clip(RoundedCornerShape(24.dp))
-                                .then(
-                                    if (selected) {
-                                        Modifier.background(
-                                            MaterialTheme.colorScheme.surfaceVariant,
-                                        )
-                                    } else {
-                                        Modifier
-                                    },
-                                )
-                            if (selected) {
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                            }
-                        }
-                        CompositionLocalProvider(LocalContentColor provides contentColor) {
-                            TextPreferenceWidget(
-                                modifier = modifier,
-                                title = stringResource(item.titleRes),
-                                subtitle = item.formatSubtitle(),
-                                icon = item.icon,
-                                onPreferenceClick = { navigator.navigate(item.screen, twoPane) },
-                            )
-                        }
-                    }
-                }
+//				Column(modifier = Modifier.padding(contentPadding)) {
+//					repeat(20){index ->
+//						Button(onClick = { /*TODO*/ }) {
+//							Text(text = "${index}")
+//						}
+//					}
+//				}
+
+				LazyColumn(modifier = Modifier.padding(contentPadding)) {
+					itemsIndexed(
+						items = items,
+						key = { _, item -> item.hashCode() },
+					) { index, item ->
+						val selected = indexSelected == index
+						var modifier: Modifier = Modifier
+						var contentColor = LocalContentColor.current
+						if (twoPane) {
+							modifier = Modifier
+								.padding(horizontal = 8.dp)
+								.clip(RoundedCornerShape(24.dp))
+								.then(
+									if (selected) {
+										Modifier.background(
+											MaterialTheme.colorScheme.surfaceVariant,
+										)
+									} else {
+										Modifier
+									},
+								)
+							if (selected) {
+								contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+							}
+						}
+
+
+
+						CompositionLocalProvider(LocalContentColor provides contentColor) {
+							TextPreferenceWidget(
+								modifier = modifier,
+								title = stringResource(item.titleRes),
+								subtitle = item.formatSubtitle(),
+								icon = item.icon,
+								onPreferenceClick = { navigator.navigate(item.screen, twoPane) },
+							)
+						}
+					}
+				}
+				
+
+
+//                LazyColumn(
+//                    state = state,
+//                    contentPadding = contentPadding,
+//                ) {
+//                    itemsIndexed(
+//                        items = items,
+//                        key = { _, item -> item.hashCode() },
+//                    ) { index, item ->
+//                        val selected = indexSelected == index
+//                        var modifier: Modifier = Modifier
+//                        var contentColor = LocalContentColor.current
+//                        if (twoPane) {
+//                            modifier = Modifier
+//								.padding(horizontal = 8.dp)
+//								.clip(RoundedCornerShape(24.dp))
+//								.then(
+//									if (selected) {
+//										Modifier.background(
+//											MaterialTheme.colorScheme.surfaceVariant,
+//										)
+//									} else {
+//										Modifier
+//									},
+//								)
+//                            if (selected) {
+//                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+//                            }
+//                        }
+//
+//						Button(onClick = { /*TODO*/ }) {
+//							Text("${index}")
+//						}
+//
+//                        CompositionLocalProvider(LocalContentColor provides contentColor) {
+//                            TextPreferenceWidget(
+//                                modifier = modifier,
+//                                title = stringResource(item.titleRes),
+//                                subtitle = item.formatSubtitle(),
+//                                icon = item.icon,
+//                                onPreferenceClick = { navigator.navigate(item.screen, twoPane) },
+//                            )
+//                        }
+//                    }
+//                }
             },
         )
     }
