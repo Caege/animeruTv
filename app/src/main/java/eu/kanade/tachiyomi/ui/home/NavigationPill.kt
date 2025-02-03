@@ -161,7 +161,7 @@ fun NavigationPill(
 
 				Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
 					val isDarkMode = isSystemInDarkTheme()
-					val pillBackground = if (isDarkMode) MaterialTheme.colorScheme.surfaceBright else MaterialTheme.colorScheme.surface
+					val pillBackground = if (isDarkMode) MaterialTheme.colorScheme.surfaceBright else MaterialTheme.colorScheme.surfaceDim
 
 					tabs.fastForEach {
 						val navigator = LocalNavigator.currentOrThrow

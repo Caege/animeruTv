@@ -20,7 +20,7 @@ android {
     namespace = "eu.kanade.tachiyomi"
 
     defaultConfig {
-        applicationId = "xyz.Quickdev.Animiru.mi"
+        applicationId = "xyz.Caege.Animiru.mi"
 
         versionCode = 126
         versionName = "0.17.2.0"

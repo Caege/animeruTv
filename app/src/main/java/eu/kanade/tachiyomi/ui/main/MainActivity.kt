@@ -261,8 +261,9 @@ class MainActivity : BaseActivity() {
                 }
 
                 HandleOnNewIntent(context = context, navigator = navigator)
-
-                CheckForUpdates()
+				
+// don't check for update
+//                CheckForUpdates()
                 ShowOnboarding()
             }
 
