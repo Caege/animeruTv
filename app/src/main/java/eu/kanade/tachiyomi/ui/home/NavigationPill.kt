@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -159,6 +160,8 @@ fun NavigationPill(
 //                }
 
 				Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+					val isDarkMode = isSystemInDarkTheme()
+					val pillBackground = if (isDarkMode) MaterialTheme.colorScheme.surfaceBright else MaterialTheme.colorScheme.surface
 
 					tabs.fastForEach {
 						val navigator = LocalNavigator.currentOrThrow
@@ -168,8 +171,8 @@ fun NavigationPill(
 							modifier = Modifier
 								.width(56.dp)
 								.height(48.dp),
-							colors = SelectableSurfaceDefaults.colors(
-								focusedContainerColor = MaterialTheme.colorScheme.surfaceDim,
+							colors = SelectableSurfaceDefaults.colors(containerColor =MaterialTheme.colorScheme.surface,
+								focusedContainerColor = pillBackground,
 								selectedContainerColor = MaterialTheme.colorScheme.primaryContainer
 							),
 							selected = selected,
