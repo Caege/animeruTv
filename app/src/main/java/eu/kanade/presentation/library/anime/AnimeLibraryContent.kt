@@ -9,6 +9,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -60,6 +61,9 @@ fun AnimeLibraryContent(
         val scope = rememberCoroutineScope()
         var isRefreshing by remember(pagerState.currentPage) { mutableStateOf(false) }
 
+		//track which tab is selected
+		var selectedTab by remember { mutableIntStateOf(0) }
+
         if (showPageTabs && categories.size > 1) {
             LaunchedEffect(categories) {
                 if (categories.size <= pagerState.currentPage) {
@@ -67,10 +71,14 @@ fun AnimeLibraryContent(
                 }
             }
             LibraryTabs(
+				selectedTab = selectedTab,
                 categories = categories,
                 pagerState = pagerState,
                 getNumberOfItemsForCategory = getNumberOfAnimeForCategory,
-            ) { scope.launch { pagerState.animateScrollToPage(it) } }
+            ) {
+//				scope.launch { pagerState.animateScrollToPage(it) }
+			selectedTab = it
+			}
         }
 
         val notSelectionMode = selection.isEmpty()
@@ -82,21 +90,22 @@ fun AnimeLibraryContent(
             }
         }
 
-        PullRefresh(
-            refreshing = isRefreshing,
-            onRefresh = {
-                val started = onRefresh(categories[currentPage()])
-                if (!started) return@PullRefresh
-                scope.launch {
-                    // Fake refresh status but hide it after a second as it's a long running task
-                    isRefreshing = true
-                    delay(1.seconds)
-                    isRefreshing = false
-                }
-            },
-            enabled = notSelectionMode,
-        ) {
+//        PullRefresh(
+//            refreshing = isRefreshing,
+//            onRefresh = {
+//                val started = onRefresh(categories[currentPage()])
+//                if (!started) return@PullRefresh
+//                scope.launch {
+//                    // Fake refresh status but hide it after a second as it's a long running task
+//                    isRefreshing = true
+//                    delay(1.seconds)
+//                    isRefreshing = false
+//                }
+//            },
+//            enabled = notSelectionMode,
+//        ) {
             AnimeLibraryPager(
+				selectedTab = selectedTab,
                 state = pagerState,
                 contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
                 hasActiveFilters = hasActiveFilters,
@@ -110,7 +119,7 @@ fun AnimeLibraryContent(
                 onLongClickAnime = onToggleRangeSelection,
                 onClickContinueWatching = onContinueWatchingClicked,
             )
-        }
+//        }
 
         LaunchedEffect(pagerState.currentPage) {
             onChangeCurrentPage(pagerState.currentPage)

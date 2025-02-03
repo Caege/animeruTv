@@ -31,6 +31,7 @@ fun AnimeLibraryCompactGrid(
 ) {
     LazyLibraryGrid(
         modifier = Modifier.fillMaxSize(),
+
         columns = columns,
         contentPadding = contentPadding,
     ) {

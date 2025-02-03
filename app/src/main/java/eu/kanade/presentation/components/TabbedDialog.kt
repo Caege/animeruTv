@@ -85,35 +85,7 @@ fun TabbedDialogTest(
 		val scope = rememberCoroutineScope()
 		val (buttonFocus) = remember { FocusRequester.createRefs() }
 		Column {
-//			Row {
-//				PrimaryTabRow(
-//					modifier = Modifier.weight(1f),
-//					selectedTabIndex = pagerState.currentPage,
-//					containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-//					divider = {},
-//				) {
-//					tabTitles.fastForEachIndexed { index, tab ->
-//						Tab(
-//							selected = pagerState.currentPage == index,
-//							modifier = when {
-//								index == 0 -> Modifier.focusRequester(buttonFocus)
-//								index == 2 -> Modifier.focusProperties { down = refList[2] }
-//								else -> Modifier
-//							},
-//							onClick = {
-//								scope.launch {
-//									pagerState.animateScrollToPage(index)
-//									//								if(index == 0) {refList[index].requestFocus()}
-//								}
-//							},
-//							text = { TabText(text = tab) },
-//							unselectedContentColor = MaterialTheme.colorScheme.onSurface,
-//						)
-//					}
-//				}
-//
-//				MoreMenu(onOverflowMenuClicked, tabOverflowMenuContent, overflowIcon)
-//			}
+
 
 
 

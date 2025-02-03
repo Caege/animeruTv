@@ -29,6 +29,7 @@ import tachiyomi.presentation.core.util.plus
 
 @Composable
 fun AnimeLibraryPager(
+	selectedTab :Int,
     state: PagerState,
     contentPadding: PaddingValues,
     hasActiveFilters: Boolean,
@@ -42,79 +43,152 @@ fun AnimeLibraryPager(
     onLongClickAnime: (LibraryAnime) -> Unit,
     onClickContinueWatching: ((LibraryAnime) -> Unit)?,
 ) {
-    HorizontalPager(
-        modifier = Modifier.fillMaxSize(),
-        state = state,
-        verticalAlignment = Alignment.Top,
-    ) { page ->
-        if (page !in ((state.currentPage - 1)..(state.currentPage + 1))) {
-            // To make sure only one offscreen page is being composed
-            return@HorizontalPager
-        }
-        val library = getLibraryForPage(page)
 
-        if (library.isEmpty()) {
-            LibraryPagerEmptyScreen(
-                searchQuery = searchQuery,
-                hasActiveFilters = hasActiveFilters,
-                contentPadding = contentPadding,
-                onGlobalSearchClicked = onGlobalSearchClicked,
-            )
-            return@HorizontalPager
-        }
+	Column( modifier = Modifier.fillMaxSize(),
 
-        val displayMode by getDisplayMode(page)
-        val columns by if (displayMode != LibraryDisplayMode.List) {
-            val configuration = LocalConfiguration.current
-            val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+		){
 
-            remember(isLandscape) { getColumnsForOrientation(isLandscape) }
-        } else {
-            remember { mutableIntStateOf(0) }
-        }
+		val library = getLibraryForPage(selectedTab)
 
-        when (displayMode) {
-            LibraryDisplayMode.List -> {
-                AnimeLibraryList(
-                    items = library,
-                    contentPadding = contentPadding,
-                    selection = selectedAnime,
-                    onClick = onClickAnime,
-                    onClickContinueWatching = onClickContinueWatching,
-                    onLongClick = onLongClickAnime,
-                    searchQuery = searchQuery,
-                    onGlobalSearchClicked = onGlobalSearchClicked,
-                )
-            }
-            LibraryDisplayMode.CompactGrid, LibraryDisplayMode.CoverOnlyGrid -> {
-                AnimeLibraryCompactGrid(
-                    items = library,
-                    showTitle = displayMode is LibraryDisplayMode.CompactGrid,
-                    columns = columns,
-                    contentPadding = contentPadding,
-                    selection = selectedAnime,
-                    onClick = onClickAnime,
-                    onClickContinueWatching = onClickContinueWatching,
-                    onLongClick = onLongClickAnime,
-                    searchQuery = searchQuery,
-                    onGlobalSearchClicked = onGlobalSearchClicked,
-                )
-            }
-            LibraryDisplayMode.ComfortableGrid -> {
-                AnimeLibraryComfortableGrid(
-                    items = library,
-                    columns = columns,
-                    contentPadding = contentPadding,
-                    selection = selectedAnime,
-                    onClick = onClickAnime,
-                    onLongClick = onLongClickAnime,
-                    onClickContinueWatching = onClickContinueWatching,
-                    searchQuery = searchQuery,
-                    onGlobalSearchClicked = onGlobalSearchClicked,
-                )
-            }
-        }
-    }
+		if (library.isEmpty()) {
+			LibraryPagerEmptyScreen(
+				searchQuery = searchQuery,
+				hasActiveFilters = hasActiveFilters,
+				contentPadding = contentPadding,
+				onGlobalSearchClicked = onGlobalSearchClicked,
+			)
+
+		}
+
+		val displayMode by getDisplayMode(selectedTab)
+		val columns by if (displayMode != LibraryDisplayMode.List) {
+			val configuration = LocalConfiguration.current
+			val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+			remember(isLandscape) { getColumnsForOrientation(isLandscape) }
+		} else {
+			remember { mutableIntStateOf(0) }
+		}
+
+
+		when (displayMode) {
+			LibraryDisplayMode.List -> {
+				AnimeLibraryList(
+					items = library,
+					contentPadding = contentPadding,
+					selection = selectedAnime,
+					onClick = onClickAnime,
+					onClickContinueWatching = onClickContinueWatching,
+					onLongClick = onLongClickAnime,
+					searchQuery = searchQuery,
+					onGlobalSearchClicked = onGlobalSearchClicked,
+				)
+			}
+			LibraryDisplayMode.CompactGrid, LibraryDisplayMode.CoverOnlyGrid -> {
+				AnimeLibraryCompactGrid(
+					items = library,
+					showTitle = displayMode is LibraryDisplayMode.CompactGrid,
+					columns = columns,
+					contentPadding = contentPadding,
+					selection = selectedAnime,
+					onClick = onClickAnime,
+					onClickContinueWatching = onClickContinueWatching,
+					onLongClick = onLongClickAnime,
+					searchQuery = searchQuery,
+					onGlobalSearchClicked = onGlobalSearchClicked,
+				)
+			}
+			LibraryDisplayMode.ComfortableGrid -> {
+				AnimeLibraryComfortableGrid(
+					items = library,
+					columns = columns,
+					contentPadding = contentPadding,
+					selection = selectedAnime,
+					onClick = onClickAnime,
+					onLongClick = onLongClickAnime,
+					onClickContinueWatching = onClickContinueWatching,
+					searchQuery = searchQuery,
+					onGlobalSearchClicked = onGlobalSearchClicked,
+				)
+			}
+		}
+	}
+
+
+
+//    HorizontalPager(
+//        modifier = Modifier.fillMaxSize(),userScrollEnabled = false,
+//        state = state,
+//        verticalAlignment = Alignment.Top,
+//    ) { page ->
+//        if (page !in ((state.currentPage - 1)..(state.currentPage + 1))) {
+//            // To make sure only one offscreen page is being composed
+//            return@HorizontalPager
+//        }
+//        val library = getLibraryForPage(page)
+//
+//        if (library.isEmpty()) {
+//            LibraryPagerEmptyScreen(
+//                searchQuery = searchQuery,
+//                hasActiveFilters = hasActiveFilters,
+//                contentPadding = contentPadding,
+//                onGlobalSearchClicked = onGlobalSearchClicked,
+//            )
+//            return@HorizontalPager
+//        }
+//
+//        val displayMode by getDisplayMode(page)
+//        val columns by if (displayMode != LibraryDisplayMode.List) {
+//            val configuration = LocalConfiguration.current
+//            val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+//
+//            remember(isLandscape) { getColumnsForOrientation(isLandscape) }
+//        } else {
+//            remember { mutableIntStateOf(0) }
+//        }
+//
+//        when (displayMode) {
+//            LibraryDisplayMode.List -> {
+//                AnimeLibraryList(
+//                    items = library,
+//                    contentPadding = contentPadding,
+//                    selection = selectedAnime,
+//                    onClick = onClickAnime,
+//                    onClickContinueWatching = onClickContinueWatching,
+//                    onLongClick = onLongClickAnime,
+//                    searchQuery = searchQuery,
+//                    onGlobalSearchClicked = onGlobalSearchClicked,
+//                )
+//            }
+//            LibraryDisplayMode.CompactGrid, LibraryDisplayMode.CoverOnlyGrid -> {
+//                AnimeLibraryCompactGrid(
+//                    items = library,
+//                    showTitle = displayMode is LibraryDisplayMode.CompactGrid,
+//                    columns = columns,
+//                    contentPadding = contentPadding,
+//                    selection = selectedAnime,
+//                    onClick = onClickAnime,
+//                    onClickContinueWatching = onClickContinueWatching,
+//                    onLongClick = onLongClickAnime,
+//                    searchQuery = searchQuery,
+//                    onGlobalSearchClicked = onGlobalSearchClicked,
+//                )
+//            }
+//            LibraryDisplayMode.ComfortableGrid -> {
+//                AnimeLibraryComfortableGrid(
+//                    items = library,
+//                    columns = columns,
+//                    contentPadding = contentPadding,
+//                    selection = selectedAnime,
+//                    onClick = onClickAnime,
+//                    onLongClick = onLongClickAnime,
+//                    onClickContinueWatching = onClickContinueWatching,
+//                    searchQuery = searchQuery,
+//                    onGlobalSearchClicked = onGlobalSearchClicked,
+//                )
+//            }
+//        }
+//    }
 }
 
 @Composable

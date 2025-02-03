@@ -16,6 +16,7 @@ import tachiyomi.presentation.core.components.material.TabText
 
 @Composable
 internal fun LibraryTabs(
+	selectedTab : Int,
     categories: List<Category>,
     pagerState: PagerState,
     getNumberOfItemsForCategory: (Category) -> Int?,
@@ -28,7 +29,7 @@ internal fun LibraryTabs(
         modifier = Modifier.zIndex(1f),
     ) {
         PrimaryScrollableTabRow(
-            selectedTabIndex = pagerState.currentPage,
+            selectedTabIndex = selectedTab,
             edgePadding = 0.dp,
             // TODO: use default when width is fixed upstream
             // https://issuetracker.google.com/issues/242879624
@@ -37,7 +38,7 @@ internal fun LibraryTabs(
             categories.forEachIndexed { index, category ->
                 Tab(
                     // AM (GROUPING) -->
-                    selected = currentPageIndex == index,
+                    selected = selectedTab == index,
                     // <-- AM (GROUPING)
                     onClick = { onTabItemClick(index) },
                     text = {
